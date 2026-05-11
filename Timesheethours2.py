@@ -1456,7 +1456,7 @@ def generate_weekly_timesheet():
         f"{week_end.strftime('%Y%m%d')}.xlsx"
     )
 
-    export_excel(
+    excel_bytes = export_excel(
         weekly_rows,
         roster_summary_rows,
         gap_summary_rows,
@@ -1466,7 +1466,12 @@ def generate_weekly_timesheet():
         output_file
     )
 
-    return output_file, week_start, week_end
+    return (
+        excel_bytes,
+        output_file,
+        week_start,
+        week_end
+    )
 
 
 if __name__ == "__main__":

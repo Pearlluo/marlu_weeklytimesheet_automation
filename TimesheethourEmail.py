@@ -50,26 +50,22 @@ def get_graph_access_token():
 
 
 # ======================================================
-# SEND EMAIL WITH ATTACHMENT
+# SEND EMAIL WITH MEMORY ATTACHMENT
 # ======================================================
 
 def send_email_with_attachment(
     subject,
     body,
-    attachment_path
+    attachment_bytes,
+    filename
 ):
 
     token = get_graph_access_token()
 
-    with open(attachment_path, "rb") as f:
-
-        attachment_content = base64.b64encode(
-            f.read()
-        ).decode("utf-8")
-
-    attachment_name = os.path.basename(
-        attachment_path
-    )
+    # memory bytes -> base64
+    attachment_content = base64.b64encode(
+        attachment_bytes
+    ).decode("utf-8")
 
     url = (
         f"https://graph.microsoft.com/v1.0/users/"
@@ -98,7 +94,7 @@ def send_email_with_attachment(
             "attachments": [
                 {
                     "@odata.type": "#microsoft.graph.fileAttachment",
-                    "name": attachment_name,
+                    "name": filename,
                     "contentBytes": attachment_content,
                 }
             ],
@@ -114,6 +110,7 @@ def send_email_with_attachment(
     )
 
     if not response.ok:
+
         print("❌ EMAIL SEND ERROR")
         print(response.text)
 
