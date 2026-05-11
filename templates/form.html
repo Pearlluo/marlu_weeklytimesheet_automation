@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sign In / Out</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            padding: 24px 18px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 34px;
+            line-height: 1.2;
+            color: #111827;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 18px;
+            line-height: 1.4;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            height: 60px;
+            padding: 0 16px;
+            border-radius: 14px;
+            border: 2px solid #d1d5db;
+            font-size: 22px;
+            outline: none;
+            background: #fff;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        .dropdown {
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            margin-top: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            display: none;
+            background: white;
+        }
+
+        .item {
+            padding: 16px;
+            cursor: pointer;
+            font-size: 20px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item:hover,
+        .item:active {
+            background: #f1f5f9;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        button {
+            height: 62px;
+            border: none;
+            border-radius: 14px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .in {
+            background: #22c55e;
+            color: white;
+        }
+
+        .out {
+            background: #ef4444;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .msg {
+            min-height: 32px;
+            margin-top: 18px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1.4;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+                align-items: flex-start;
+            }
+
+            .container {
+                margin-top: 24px;
+                padding: 22px 14px;
+                border-radius: 18px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .hint {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            input {
+                height: 56px;
+                font-size: 20px;
+                border-radius: 12px;
+            }
+
+            .item {
+                font-size: 18px;
+                padding: 14px;
+            }
+
+            .buttons {
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            button {
+                height: 56px;
+                font-size: 20px;
+                border-radius: 12px;
+            }
+
+            .msg {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .hint {
+                font-size: 15px;
+            }
+
+            input {
+                font-size: 18px;
+            }
+
+            .item {
+                font-size: 17px;
+            }
+
+            button {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sign In / Out</h1>
+    <div class="hint">Select your name and tap a button</div>
+
+    <div class="input-wrap">
+        <input id="nameInput" placeholder="Type your name..." autocomplete="off">
+        <div id="dropdown" class="dropdown"></div>
+    </div>
+
+    <div class="buttons">
+        <button id="inBtn" class="in" disabled>Sign In</button>
+        <button id="outBtn" class="out" disabled>Sign Out</button>
+    </div>
+
+    <div id="msg" class="msg"></div>
+</div>
+
+<script>
+let selectedId = "";
+
+const input = document.getElementById("nameInput");
+const dropdown = document.getElementById("dropdown");
+const inBtn = document.getElementById("inBtn");
+const outBtn = document.getElementById("outBtn");
+const msg = document.getElementById("msg");
+
+// Search employees
+input.addEventListener("input", async () => {
+    selectedId = "";
+    inBtn.disabled = true;
+    outBtn.disabled = true;
+
+    const q = input.value.trim();
+
+    if (!q) {
+        dropdown.style.display = "none";
+        dropdown.innerHTML = "";
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/employees?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+
+        dropdown.innerHTML = "";
+
+        if (!data.ok || !data.data || data.data.length === 0) {
+            dropdown.style.display = "none";
+            return;
+        }
+
+        data.data.forEach(emp => {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerText = emp.full_name;
+
+            div.onclick = () => {
+                input.value = emp.full_name;
+                selectedId = emp.employee_id;
+                dropdown.style.display = "none";
+                inBtn.disabled = false;
+                outBtn.disabled = false;
+                msg.innerText = "";
+                msg.className = "msg";
+            };
+
+            dropdown.appendChild(div);
+        });
+
+        dropdown.style.display = "block";
+    } catch (error) {
+        dropdown.style.display = "none";
+        dropdown.innerHTML = "";
+    }
+});
+
+// Hide dropdown when clicking outside
+document.addEventListener("click", (event) => {
+    if (!dropdown.contains(event.target) && event.target !== input) {
+        dropdown.style.display = "none";
+    }
+});
+
+// Submit sign action
+async function submit(action) {
+    msg.innerText = "";
+    msg.className = "msg";
+
+    if (!selectedId) {
+        msg.innerText = "Please select your name";
+        msg.classList.add("error");
+        return;
+    }
+
+    inBtn.disabled = true;
+    outBtn.disabled = true;
+
+    try {
+        const res = await fetch("/api/sign", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                employee_id: selectedId,
+                action: action
+            })
+        });
+
+        const result = await res.json();
+
+        if (result.ok) {
+            msg.innerText = "✔ Submitted";
+            msg.classList.add("success");
+
+            input.value = "";
+            selectedId = "";
+            dropdown.innerHTML = "";
+            dropdown.style.display = "none";
+        } else {
+            msg.innerText = result.message || "Submission failed";
+            msg.classList.add("error");
+        }
+    } catch (error) {
+        msg.innerText = "Unexpected error occurred";
+        msg.classList.add("error");
+    }
+
+    inBtn.disabled = true;
+    outBtn.disabled = true;
+}
+
+inBtn.onclick = () => submit("Sign In");
+outBtn.onclick = () => submit("Sign Out");
+</script>
+
+</body>
+</html>

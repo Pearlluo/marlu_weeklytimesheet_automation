@@ -1,0 +1,95 @@
+# =========================
+
+# Python
+
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+
+# Environment / Secrets
+
+# =========================
+
+.env
+.env.*
+*.env
+.local.settings.json
+
+# =========================
+
+# Virtual Environment
+
+# =========================
+
+.venv/
+venv/
+env/
+
+# =========================
+
+# IDE
+
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+
+# Logs
+
+# =========================
+
+*.log
+
+# =========================
+
+# Excel Outputs
+
+# =========================
+
+*.xlsx
+*.xls
+
+# =========================
+
+# Temp / Checkpoints
+
+# =========================
+
+*_checkpoint.json
+*.tmp
+*.bak
+
+# =========================
+
+# Azure Function Local Packages
+
+# =========================
+
+.python_packages/
+
+# =========================
+
+# Other Project Files
+
+# =========================
+
+APP.py
+APP1.py
+GetData.py
+GetData1.py
+ClearAllHoursandupdated.py
+
+# =========================
+
+# OS Files
+
+# =========================
+
+.DS_Store
+Thumbs.db
