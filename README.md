@@ -1,4 +1,4 @@
-# Marlu Weekly Timesheet Automation
+# Weekly Timesheet Automation
 
 Automated weekly timesheet processing system. Pulls OPMS timesheet data, matches against SharePoint rosters, subtracts gap time (worker exits/returns), generates Excel reports, and emails them automatically.
 
